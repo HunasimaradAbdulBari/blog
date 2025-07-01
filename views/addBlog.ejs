@@ -1,44 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%- include('./partials/head') %>
-    <title>Add New Blog</title>
-  </head>
-  <body>
-    <%- include('./partials/nav') %>
+<head>
+  <%- include('./partials/head') %>
+  <title>Create New Post - Blogify</title>
+</head>
+<body>
+  <%- include('./partials/nav') %>
 
-    <div class="container mt-3">
-      <form action="/blog" method="post" enctype="multipart/form-data">
-        <div class="mb-3">
-          <label for="coverImage" class="form-label">Cover Image</label>
-          <input
-            type="file"
-            class="form-control"
-            id="coverImage"
-            name="coverImage"
-            aria-describedby="coverImage"
-          />
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-5">
+          <h1 class="display-6 fw-bold text-primary">
+            <i class="fas fa-pen-fancy me-2"></i>
+            Create New Post
+          </h1>
+          <p class="lead text-muted">Share your thoughts and stories with the world</p>
         </div>
-        <div class="mb-3">
-          <label for="title" class="form-label">Title</label>
-          <input
-            type="text"
-            class="form-control"
-            id="title"
-            name="title"
-            aria-describedby="title"
-          />
+
+        <!-- Form Card -->
+        <div class="card shadow-lg border-0 rounded-4">
+          <div class="card-body p-5">
+            <form action="/blog" method="post" enctype="multipart/form-data" class="blog-form">
+              
+              <!-- Cover Image Upload -->
+              <div class="mb-4">
+                <label for="coverImage" class="form-label fw-bold">
+                  <i class="fas fa-image me-2 text-primary"></i>
+                  Cover Image
+                </label>
+                <div class="upload-area border-2 border-dashed rounded-3 p-4 text-center">
+                  <input type="file" 
+                         class="form-control d-none" 
+                         id="coverImage" 
+                         name="coverImage" 
+                         accept="image/*"
+                         onchange="previewImage(this)">
+                  <div class="upload-placeholder">
+                    <i class="fas fa-cloud-upload-alt display-4 text-muted mb-3"></i>
+                    <h5 class="text-muted">Choose Cover Image</h5>
+                    <p class="text-muted mb-3">Drag and drop or click to select</p>
+                    <button type="button" 
+                            class="btn btn-outline-primary" 
+                            onclick="document.getElementById('coverImage').click()">
+                      Browse Files
+                    </button>
+                  </div>
+                  <div class="image-preview d-none">
+                    <img id="preview" class="img-fluid rounded-3" style="max-height: 300px;">
+                    <div class="mt-3">
+                      <button type="button" 
+                              class="btn btn-sm btn-outline-danger" 
+                              onclick="removeImage()">
+                        <i class="fas fa-trash me-1"></i>Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-text">
+                  <i class="fas fa-info-circle me-1"></i>
+                  Recommended size: 1200x600px. Maximum file size: 5MB
+                </div>
+              </div>
+
+              <!-- Title Input -->
+              <div class="mb-4">
+                <label for="title" class="form-label fw-bold">
+                  <i class="fas fa-heading me-2 text-primary"></i>
+                  Post Title
+                </label>
+                <input type="text" 
+                       class="form-control form-control-lg" 
+                       id="title" 
+                       name="title" 
+                       placeholder="Enter an engaging title for your post..."
+                       required>
+                <div class="form-text">
+                  <span id="titleCount">0</span> characters. A good title is between 10-100 characters.
+                </div>
+              </div>
+
+              <!-- Content Editor -->
+              <div class="mb-4">
+                <label for="body" class="form-label fw-bold">
+                  <i class="fas fa-align-left me-2 text-primary"></i>
+                  Content
+                </label>
+                <div class="editor-toolbar mb-2">
+                  <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="formatText('bold')">
+                      <i class="fas fa-bold"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="formatText('italic')">
+                      <i class="fas fa-italic"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="formatText('underline')">
+                      <i class="fas fa-underline"></i>
+                    </button>
+                  </div>
+                  <div class="btn-group btn-group-sm ms-2" role="group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="insertList()">
+                      <i class="fas fa-list"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="insertLink()">
+                      <i class="fas fa-link"></i>
+                    </button>
+                  </div>
+                </div>
+                <textarea name="body" 
+                          class="form-control" 
+                          id="body" 
+                          rows="12"
+                          placeholder="Write your story here... Share your thoughts, experiences, and insights with the community."
+                          required></textarea>
+                <div class="form-text d-flex justify-content-between">
+                  <span>
+                    <i class="fas fa-info-circle me-1"></i>
+                    Write at least 100 characters for a good post
+                  </span>
+                  <span id="bodyCount">0 characters</span>
+                </div>
+              </div>
+
+              <!-- Tags Input (Optional Enhancement) -->
+              <div class="mb-4">
+                <label for="tags" class="form-label fw-bold">
+                  <i class="fas fa-tags me-2 text-primary"></i>
+                  Tags <span class="text-muted fw-normal">(Optional)</span>
+                </label>
+                <input type="text" 
+                       class="form-control" 
+                       id="tags" 
+                       name="tags" 
+                       placeholder="Add tags separated by commas (e.g., technology, lifestyle, travel)">
+                <div class="form-text">
+                  Tags help readers discover your content more easily
+                </div>
+              </div>
+
+              <!-- Submit Buttons -->
+              <div class="d-flex justify-content-between align-items-center">
+                <a href="/" class="btn btn-outline-secondary">
+                  <i class="fas fa-arrow-left me-2"></i>
+                  Cancel
+                </a>
+                <div>
+                  <button type="button" class="btn btn-outline-primary me-2" onclick="saveDraft()">
+                    <i class="fas fa-save me-2"></i>
+                    Save Draft
+                  </button>
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    Publish Post
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
-        <div class="mb-3">
-          <label for="body">Body</label>
-          <textarea name="body" class="form-control" id="body"></textarea>
+
+        <!-- Writing Tips -->
+        <div class="card mt-4 bg-light border-0">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3">
+              <i class="fas fa-lightbulb text-warning me-2"></i>
+              Writing Tips
+            </h6>
+            <div class="row">
+              <div class="col-md-6">
+                <ul class="list-unstyled mb-0">
+                  <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Start with an engaging hook
+                  </li>
+                  <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Use clear, concise paragraphs
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <ul class="list-unstyled mb-0">
+                  <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Include relevant images
+                  </li>
+                  <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Proofread before publishing
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="mb-3">
-          <button class="btn btn-primary">Submit</button>
-        </div>
-      </form>
+      </div>
     </div>
+  </div>
 
-    <%- include('./partials/scripts') %>
-  </body>
+  <%- include('./partials/scripts') %>
+  
+  <script>
+    // Image preview functionality
+    function previewImage(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('preview').src = e.target.result;
+          document.querySelector('.upload-placeholder').classList.add('d-none');
+          document.querySelector('.image-preview').classList.remove('d-none');
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+    
+    function removeImage() {
+      document.getElementById('coverImage').value = '';
+      document.querySelector('.upload-placeholder').classList.remove('d-none');
+      document.querySelector('.image-preview').classList.add('d-none');
+    }
+    
+    // Character counters
+    document.getElementById('title').addEventListener('input', function() {
+      document.getElementById('titleCount').textContent = this.value.length;
+    });
+    
+    document.getElementById('body').addEventListener('input', function() {
+      document.getElementById('bodyCount').textContent = this.value.length + ' characters';
+    });
+    
+    // Simple text formatting (basic implementation)
+    function formatText(command) {
+      const textarea = document.getElementById('body');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selectedText = textarea.value.substring(start, end);
+      
+      if (selectedText) {
+        let formattedText = selectedText;
+        switch(command) {
+          case 'bold':
+            formattedText = `**${selectedText}**`;
+            break;
+          case 'italic':
+            formattedText = `*${selectedText}*`;
+            break;
+          case 'underline':
+            formattedText = `_${selectedText}_`;
+            break;
+        }
+        
+        textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+        textarea.focus();
+      }
+    }
+    
+    function insertList() {
+      const textarea = document.getElementById('body');
+      const cursorPos = textarea.selectionStart;
+      const textBefore = textarea.value.substring(0, cursorPos);
+      const textAfter = textarea.value.substring(cursorPos);
+      
+      textarea.value = textBefore + '\n• \n• \n• ' + textAfter;
+      textarea.focus();
+    }
+    
+    function insertLink() {
+      const url = prompt('Enter URL:');
+      const text = prompt('Enter link text:');
+      if (url && text) {
+        const textarea = document.getElementById('body');
+        const cursorPos = textarea.selectionStart;
+        const textBefore = textarea.value.substring(0, cursorPos);
+        const textAfter = textarea.value.substring(cursorPos);
+        
+        textarea.value = textBefore + `[${text}](${url})` + textAfter;
+        textarea.focus();
+      }
+    }
+    
+    function saveDraft() {
+      // Simple draft saving to localStorage
+      const draft = {
+        title: document.getElementById('title').value,
+        body: document.getElementById('body').value,
+        timestamp: new Date().toISOString()
+      };
+      
+      localStorage.setItem('blogDraft', JSON.stringify(draft));
+      showNotification('Draft saved successfully!', 'success');
+    }
+    
+    // Load draft on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedDraft = localStorage.getItem('blogDraft');
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        if (confirm('You have a saved draft. Would you like to restore it?')) {
+          document.getElementById('title').value = draft.title || '';
+          document.getElementById('body').value = draft.body || '';
+        }
+      }
+      
+      // Form animations
+      gsap.from('.card', {
+        duration: 1,
+        y: 50,
+        opacity: 0,
+        ease: 'power3.out'
+      });
+      
+      gsap.from('.display-6', {
+        duration: 1,
+        y: 30,
+        opacity: 0,
+        delay: 0.2,
+        ease: 'power3.out'
+      });
+    });
+    
+    // Auto-resize textarea
+    document.getElementById('body').addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight) + 'px';
+    });
+  </script>
+</body>
 </html>

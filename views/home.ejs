@@ -1,20 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-  
   <%- include('./partials/head')%>
-  
-  <title>Homepage </title>
+  <title>Blogify - Professional Blogging Platform</title>
 </head>
 <body>
+  <%- include('./partials/nav')%>
 
+  <!-- Hero Section -->
+  <div class="hero-section bg-primary text-white py-5 mb-5">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6">
+          <h1 class="display-4 fw-bold hero-title">Welcome to Blogify</h1>
+          <p class="lead hero-subtitle">Discover amazing stories, share your thoughts, and connect with writers from around the world.</p>
+          <% if (locals.user) { %>
+            <a href="/blog/add-new" class="btn btn-light btn-lg cta-button">Write Your Story</a>
+          <% } else { %>
+            <a href="/user/signup" class="btn btn-light btn-lg cta-button">Join Our Community</a>
+          <% } %>
+        </div>
+        <div class="col-lg-6">
+          <div class="hero-image">
+            <i class="fas fa-blog display-1"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- Blog Posts Section -->
+  <div class="container">
+    <% if (locals.user) { %>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title">Latest Blog Posts</h2>
+        <a href="/blog/add-new" class="btn btn-primary">
+          <i class="fas fa-plus"></i> New Post
+        </a>
+      </div>
+    <% } else { %>
+      <h2 class="section-title text-center mb-5">Latest Blog Posts</h2>
+    <% } %>
 
-<%- include('./partials/nav')%>
+    <% if (locals.blogs && blogs.length > 0) { %>
+      <div class="row">
+        <% blogs.forEach((blog, index) => { %>
+          <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm blog-card" data-aos="fade-up" data-aos-delay="<%= index * 100 %>">
+              <% if (blog.coverImageURL) { %>
+                <img src="<%= blog.coverImageURL %>" class="card-img-top blog-image" alt="<%= blog.title %>">
+              <% } %>
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title blog-title"><%= blog.title %></h5>
+                <p class="card-text blog-excerpt">
+                  <%= blog.body.substring(0, 120) %>...
+                </p>
+                <div class="mt-auto">
+                  <div class="d-flex align-items-center mb-3">
+                    <img src="<%= blog.createdBy.profileImageURL %>" class="rounded-circle me-2" width="30" height="30" alt="Author">
+                    <small class="text-muted">
+                      By <%= blog.createdBy.fullName %> • 
+                      <%= new Date(blog.createdAt).toLocaleDateString() %>
+                    </small>
+                  </div>
+                  <a href="/blog/<%= blog._id %>" class="btn btn-outline-primary">Read More</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="text-center py-5">
+        <i class="fas fa-blog display-1 text-muted mb-3"></i>
+        <h3 class="text-muted">No blogs yet</h3>
+        <p class="text-muted">Be the first to share your story!</p>
+        <% if (locals.user) { %>
+          <a href="/blog/add-new" class="btn btn-primary">Create First Post</a>
+        <% } else { %>
+          <a href="/user/signup" class="btn btn-primary">Join to Write</a>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Features Section -->
+  <div class="bg-light py-5 mt-5">
+    <div class="container">
+      <h3 class="text-center mb-5 section-title">Why Choose Blogify?</h3>
+      <div class="row">
+        <div class="col-md-4 text-center feature-item" data-aos="fade-up">
+          <i class="fas fa-edit display-4 text-primary mb-3"></i>
+          <h5>Easy Writing</h5>
+          <p class="text-muted">Simple and intuitive editor to write and publish your thoughts effortlessly.</p>
+        </div>
+        <div class="col-md-4 text-center feature-item" data-aos="fade-up" data-aos-delay="100">
+          <i class="fas fa-users display-4 text-primary mb-3"></i>
+          <h5>Community</h5>
+          <p class="text-muted">Connect with like-minded writers and readers from around the globe.</p>
+        </div>
+        <div class="col-md-4 text-center feature-item" data-aos="fade-up" data-aos-delay="200">
+          <i class="fas fa-comments display-4 text-primary mb-3"></i>
+          <h5>Engage</h5>
+          <p class="text-muted">Comment and interact with posts to build meaningful conversations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <%- include('./partials/scripts')%>
-
-  
 </body>
 </html>

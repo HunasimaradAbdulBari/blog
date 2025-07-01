@@ -1,50 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%- include('./partials/head') %>
-    <title>Blog</title>
-  </head>
-  <body>
-    <%- include('./partials/nav') %>
+<head>
+  <%- include('./partials/head') %>
+  <title><%= blog.title %> - Blogify</title>
+</head>
+<body>
+  <%- include('./partials/nav') %>
 
-    <div class="container mt-4">
-      <h1><%= blog.title %></h1>
-      <img src="<%= blog.coverImageURL %>" width="700px" />
-      <pre class="mt-3"><%= blog.body %></pre>
-    </div>
+  <div class="container mt-4">
+    <!-- Blog Header -->
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <article class="blog-article">
+          <!-- Blog Title -->
+          <header class="mb-4 text-center">
+            <h1 class="display-5 fw-bold blog-title mb-3"><%= blog.title %></h1>
+            
+            <!-- Author Info -->
+            <div class="d-flex align-items-center justify-content-center mb-4">
+              <img src="<%= blog.createdBy.profileImageURL %>" 
+                   class="rounded-circle me-3" 
+                   width="60" 
+                   height="60" 
+                   alt="<%= blog.createdBy.fullName %>">
+              <div class="text-start">
+                <h6 class="mb-0 fw-bold"><%= blog.createdBy.fullName %></h6>
+                <small class="text-muted">
+                  <i class="fas fa-calendar me-1"></i>
+                  <%= new Date(blog.createdAt).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  }) %>
+                </small>
+              </div>
+            </div>
+          </header>
 
-    <div class="container mt-4">
-      <img src="<%= blog.createdBy.profileImageURL %>" width="50px" /> <%=
-      blog.createdBy.fullName %>
-    </div>
+          <!-- Cover Image -->
+          <% if (blog.coverImageURL) { %>
+            <div class="mb-4 text-center">
+              <img src="<%= blog.coverImageURL %>" 
+                   class="img-fluid rounded-3 shadow-lg blog-cover-image" 
+                   alt="<%= blog.title %>"
+                   style="max-height: 500px; width: 100%; object-fit: cover;">
+            </div>
+          <% } %>
 
-    <div class="container mt-3">
-      <h1>Comments (<%= comments.length %>)</h1>
-      <% if (locals.user) { %>
-      <form action="/blog/comment/<%= blog._id %>" method="post">
-        <div class="mb-3">
-          <input
-            type="text"
-            name="content"
-            class="form-control"
-            placeholder="Enter your comment"
-          />
-          <button class="btn btn-sm btn-primary" type="submit">Add</button>
-        </div>
-      </form>
+          <!-- Blog Content -->
+          <div class="blog-content">
+            <div class="blog-body">
+              <%= blog.body %>
+            </div>
+          </div>
 
-      <% } %>
-      <div class="mt-3">
-        <% comments.forEach(comment => { %>
-        <div>
-          <img src="<%= comment.createdBy.profileImageURL %>" width="50px" />
-          <%= comment.createdBy.fullName %>
-          <pre><%= comment.content %></pre>
-        </div>
-        <% }) %>
+          <!-- Social Share -->
+          <div class="mt-5 pt-4 border-top">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <h6 class="mb-0">Share this post:</h6>
+              </div>
+              <div class="col-md-6 text-md-end">
+                <div class="social-share">
+                  <a href="#" class="btn btn-outline-primary btn-sm me-2">
+                    <i class="fab fa-twitter"></i> Twitter
+                  </a>
+                  <a href="#" class="btn btn-outline-primary btn-sm me-2">
+                    <i class="fab fa-facebook"></i> Facebook
+                  </a>
+                  <a href="#" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-link"></i> Copy Link
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
+  </div>
 
-    <%- include('./partials/scripts') %>
-  </body>
+  <!-- Comments Section -->
+  <div class="bg-light py-5 mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <div class="comments-section">
+            <h3 class="mb-4">
+              <i class="fas fa-comments me-2"></i>
+              Comments (<%= comments.length %>)
+            </h3>
+
+            <!-- Add Comment Form -->
+            <% if (locals.user) { %>
+              <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                  <form action="/blog/comment/<%= blog._id %>" method="post" class="comment-form">
+                    <div class="d-flex">
+                      <img src="<%= user.profileImageURL %>" 
+                           class="rounded-circle me-3" 
+                           width="40" 
+                           height="40" 
+                           alt="Your Avatar">
+                      <div class="flex-grow-1">
+                        <textarea name="content" 
+                                  class="form-control mb-3" 
+                                  rows="3" 
+                                  placeholder="Share your thoughts about this post..."
+                                  required></textarea>
+                        <div class="text-end">
+                          <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>
+                            Post Comment
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            <% } else { %>
+              <div class="card mb-4 bg-primary text-white">
+                <div class="card-body text-center">
+                  <h5><i class="fas fa-sign-in-alt me-2"></i>Join the Conversation</h5>
+                  <p class="mb-3">Sign in to leave a comment and engage with other readers.</p>
+                  <a href="/user/signin" class="btn btn-light me-2">Sign In</a>
+                  <a href="/user/signup" class="btn btn-outline-light">Sign Up</a>
+                </div>
+              </div>
+            <% } %>
+
+            <!-- Comments List -->
+            <div class="comments-list">
+              <% if (comments.length > 0) { %>
+                <% comments.forEach((comment, index) => { %>
+                  <div class="comment-item" data-aos="fade-up" data-aos-delay="<%= index * 100 %>">
+                    <div class="d-flex">
+                      <img src="<%= comment.createdBy.profileImageURL %>" 
+                           class="rounded-circle me-3" 
+                           width="50" 
+                           height="50" 
+                           alt="<%= comment.createdBy.fullName %>">
+                      <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                          <h6 class="mb-0 fw-bold"><%= comment.createdBy.fullName %></h6>
+                          <small class="text-muted">
+                            <%= new Date(comment.createdAt).toLocaleDateString() %>
+                          </small>
+                        </div>
+                        <p class="mb-0 comment-text"><%= comment.content %></p>
+                      </div>
+                    </div>
+                  </div>
+                <% }) %>
+              <% } else { %>
+                <div class="text-center py-5">
+                  <i class="fas fa-comment-slash display-4 text-muted mb-3"></i>
+                  <h5 class="text-muted">No comments yet</h5>
+                  <p class="text-muted">Be the first to share your thoughts!</p>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Posts Section -->
+  <div class="container py-5">
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <h4 class="mb-4 section-title">You might also like</h4>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body">
+                <h6 class="card-title">More posts from this author</h6>
+                <p class="card-text text-muted small">Discover other amazing stories by <%= blog.createdBy.fullName %></p>
+                <a href="#" class="btn btn-outline-primary btn-sm">View More</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body">
+                <h6 class="card-title">Similar Topics</h6>
+                <p class="card-text text-muted small">Explore posts with similar themes and topics</p>
+                <a href="/" class="btn btn-outline-primary btn-sm">Browse All</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('./partials/scripts') %>
+  
+  <script>
+    // Additional blog-specific animations
+    document.addEventListener('DOMContentLoaded', function() {
+      // Blog title animation
+      gsap.from('.blog-title', {
+        duration: 1,
+        y: 30,
+        opacity: 0,
+        ease: 'power3.out'
+      });
+      
+      // Cover image animation
+      if (document.querySelector('.blog-cover-image')) {
+        gsap.from('.blog-cover-image', {
+          duration: 1.2,
+          scale: 0.9,
+          opacity: 0,
+          delay: 0.3,
+          ease: 'power3.out'
+        });
+      }
+      
+      // Blog content animation
+      gsap.from('.blog-content', {
+        duration: 1,
+        y: 50,
+        opacity: 0,
+        delay: 0.5,
+        ease: 'power3.out'
+      });
+    });
+  </script>
+</body>
 </html>
